@@ -1,0 +1,40 @@
+buildscript {
+    ext.kotlin_version = '1.9.25' // آخر إصدار مستقر متوافق
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.4.2'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = '../build'
+
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+
+    // ✅ نضمن إن كل إضافات Firebase مثلاً عندها namespace و buildConfig مفعّل
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android.buildFeatures.buildConfig = true
+
+            if (!project.android.hasProperty("namespace") || project.android.namespace == null) {
+                project.android.namespace = "${project.group}.${project.name}"
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
