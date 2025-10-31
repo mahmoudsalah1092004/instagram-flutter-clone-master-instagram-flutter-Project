@@ -1,4 +1,4 @@
-// resources/auth_methods.dart
+// lib/resources/auth_methods.dart
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +8,8 @@ import 'package:instagram_clone_flutter/resources/storage_methods.dart';
 class AuthMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // ... (keep existing methods: getUserDetails, signUpUser, loginUser, signOut) ...
 
   // ✅ get user details (with check if doc exists)
   Future<model.User?> getUserDetails() async {
@@ -101,4 +103,48 @@ class AuthMethods {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  // 🆕 START: Add updateUserData method
+  Future<String> updateUserData({
+    required String uid,
+    required String username,
+    required String bio,
+    Uint8List? file, // Make file optional
+  }) async {
+    String res = "Some error Occurred";
+    try {
+      String? photoUrl;
+
+      // If a new file is provided, upload it and get the URL
+      if (file != null) {
+        photoUrl = await StorageMethods()
+            .uploadImageToStorage('profilePics', file, false);
+      }
+
+      // Create a map of data to update
+      Map<String, dynamic> userData = {
+        'username': username,
+        'bio': bio,
+      };
+
+      // If a new photoUrl was generated, add it to the map
+      if (photoUrl != null) {
+        userData['photoUrl'] = photoUrl;
+      }
+
+      // Update the user document in Firestore
+      await _firestore.collection('users').doc(uid).update(userData);
+
+      // Note: You might also want to update the username/profImage
+      // in all existing posts and comments by this user.
+      // This is a more complex operation, often done using Cloud Functions
+      // for consistency, but for this feature, we'll just update the user's profile.
+
+      res = "success";
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+  // 🆕 END: Add updateUserData method
 }
