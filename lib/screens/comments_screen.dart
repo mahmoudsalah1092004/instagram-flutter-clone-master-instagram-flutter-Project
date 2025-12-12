@@ -1,138 +1,228 @@
 // screens/comments_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:instagram_clone_flutter/providers/user_provider.dart';
 import 'package:instagram_clone_flutter/resources/firestore_methods.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
-import 'package:instagram_clone_flutter/utils/utils.dart';
-import 'package:instagram_clone_flutter/widgets/comment_card.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class CommentsScreen extends StatefulWidget {
   final String postId;
-  const CommentsScreen({super.key, required this.postId});
+  const CommentsScreen({Key? key, required this.postId}) : super(key: key);
 
   @override
-  _CommentsScreenState createState() => _CommentsScreenState();
+  State<CommentsScreen> createState() => _CommentsScreenState();
 }
 
 class _CommentsScreenState extends State<CommentsScreen> {
-  final TextEditingController commentEditingController =
-      TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
-  void postComment(String uid, String name, String profilePic) async {
-    try {
-      String res = await FireStoreMethods().postComment(
+  String username = '';
+  String profilePic = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserData();
+  }
+
+  // جلب بيانات المستخدم من Firestore
+  void _getUserData() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    if (userDoc.exists) {
+      setState(() {
+        username = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'User';
+        profilePic = (userDoc.data() as Map<String, dynamic>)['photoUrl'] ?? '';
+      });
+    }
+  }
+
+  void postComment() async {
+    if (_commentController.text.isNotEmpty) {
+      await FireStoreMethods().postComment(
         widget.postId,
-        commentEditingController.text,
-        uid,
-        name,
+        _commentController.text,
+        FirebaseAuth.instance.currentUser!.uid,
+        username,
         profilePic,
       );
+      _commentController.clear();
 
-      if (res != 'success') {
-        if (context.mounted) showSnackBar(context, res);
-      }
-      setState(() {
-        commentEditingController.text = "";
-      });
-    } catch (err) {
-      showSnackBar(
-        context,
-        err.toString(),
+      // Scroll to bottom
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 80,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final user = userProvider.getUser;
-
-    // ✅ تأكد إن الـ user مش null قبل ما تبني الشاشة
-    if (user == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
+      backgroundColor: mobileBackgroundColor,
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
-        title: const Text('Comments'),
-        centerTitle: false,
+        title: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('posts')
+              .doc(widget.postId)
+              .collection('comments')
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+            int commentCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
+            return Text('Comments ($commentCount)', style: const TextStyle(color: Colors.white));
+          },
+        ),
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('posts')
-            .doc(widget.postId)
-            .collection('comments')
-            .orderBy('datePublished', descending: true)
-            .snapshots(),
-        builder: (context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(widget.postId)
+                  .collection('comments')
+                  .orderBy('datePublished', descending: false)
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text("No comments yet."),
-            );
-          }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text('No comments yet', style: TextStyle(color: Colors.white70)),
+                  );
+                }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (ctx, index) => CommentCard(
-              snap: snapshot.data!.docs[index],
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var comment = snapshot.data!.docs[index].data();
+                    var commentId = snapshot.data!.docs[index].id; // جاي من Firestore
+                    Timestamp timestamp = comment['datePublished'] as Timestamp;
+                    String formattedDate = DateFormat('MMM d, yyyy').format(timestamp.toDate());
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundImage: NetworkImage(comment['profilePic'] ?? ''),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: comment['name'] ?? 'User',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      const TextSpan(text: "  "),
+                                      TextSpan(
+                                        text: comment['text'] ?? '',
+                                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  formattedDate,
+                                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // زر حذف التعليق لو ده كومنت المستخدم
+                          if (comment['uid'] == FirebaseAuth.instance.currentUser!.uid)
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Delete Comment'),
+                                    content: const Text('Are you sure you want to delete this comment?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop(); // اغلاق الـ Dialog
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await FirebaseFirestore.instance
+                                              .collection('posts')
+                                              .doc(widget.postId)
+                                              .collection('comments')
+                                              .doc(commentId)
+                                              .delete();
+                                          Navigator.of(ctx).pop(); // اغلاق الـ Dialog بعد الحذف
+                                        },
+                                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          );
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: kToolbarHeight,
-          margin:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          padding: const EdgeInsets.only(left: 16, right: 8),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(user.photoUrl),
-                radius: 18,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 8),
-                  child: TextField(
-                    controller: commentEditingController,
-                    decoration: InputDecoration(
-                      hintText: 'Comment as ${user.username}',
-                      border: InputBorder.none,
+          ),
+          const Divider(color: Colors.white24),
+          SafeArea(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(profilePic),
+                  radius: 18,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: TextField(
+                      controller: _commentController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: 'Add a comment...',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              InkWell(
-                onTap: () => postComment(
-                  user.uid,
-                  user.username,
-                  user.photoUrl,
+                TextButton(
+                  onPressed: postComment,
+                  child: const Text('Post', style: TextStyle(color: Colors.blueAccent)),
                 ),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                  child: const Text(
-                    'Post',
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              )
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

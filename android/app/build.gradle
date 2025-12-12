@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace "com.example.instagram_clone_flutter"
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.instagram_clone_flutter"
-        minSdk 23
-        targetSdk 34
+        minSdkVersion flutter.minSdkVersion
+        targetSdk 36
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -33,9 +33,7 @@ android {
 
     buildTypes {
         release {
-            // ✅ استخدم التوقيع الافتراضي مؤقتًا (debug)
             signingConfig signingConfigs.debug
-            // تقدر تضيف keystore بتاعك هنا لاحقًا
             minifyEnabled false
             shrinkResources false
         }
@@ -44,7 +42,6 @@ android {
         }
     }
 
-    // ✅ علشان Firebase و plugins ميعملوش crash
     packagingOptions {
         resources {
             excludes += [
@@ -67,6 +64,6 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.25"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
     implementation "androidx.multidex:multidex:2.0.1"
 }
