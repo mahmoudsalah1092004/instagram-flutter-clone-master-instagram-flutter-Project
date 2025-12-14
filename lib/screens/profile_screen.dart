@@ -1,15 +1,18 @@
-// screens/profile_screen.dart
+// lib/screens/profile_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone_flutter/resources/auth_methods.dart';
 import 'package:instagram_clone_flutter/resources/firestore_methods.dart';
+// 🆕 START: Import EditProfileScreen
 import 'package:instagram_clone_flutter/screens/edit_profile_screen.dart';
+// 🆕 END: Import EditProfileScreen
 import 'package:instagram_clone_flutter/screens/login_screen.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
 import 'package:instagram_clone_flutter/widgets/follow_button.dart';
+// 🆕 START: Import User model
 import 'package:instagram_clone_flutter/models/user.dart' as model;
-import 'chat_screen.dart'; // 🆕 Import ChatScreen
+// 🆕 END: Import User model
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -22,7 +25,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowing = false;
   bool isLoading = false;
-  model.User? userData;
+  // 🆕 START: Add userData variable
+  model.User? userData; // Make it nullable initially
+  // 🆕 END: Add userData variable
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +45,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         }
 
+        // 🆕 START: Use User model
         userData = model.User.fromSnap(snapshot.data!);
         int followers = userData!.followers.length;
         int following = userData!.following.length;
         isFollowing = userData!.followers.contains(currentUserId);
+        // 🆕 END: Use User model
 
         return Scaffold(
           appBar: AppBar(
             backgroundColor: mobileBackgroundColor,
-            title: Text(userData!.username),
+            title: Text(userData!.username), // 🆕 Use model
             centerTitle: false,
           ),
           body: ListView(
@@ -61,7 +68,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           backgroundColor: Colors.grey,
-                          backgroundImage: NetworkImage(userData!.photoUrl),
+                          backgroundImage: NetworkImage(
+                            userData!.photoUrl, // 🆕 Use model
+                          ),
                           radius: 40,
                         ),
                         Expanded(
@@ -77,6 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (!postSnapshot.hasData) {
                                     return const SizedBox.shrink();
                                   }
+
                                   int postLen = postSnapshot.data!.docs.length;
 
                                   return Row(
@@ -95,69 +105,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  if (currentUserId == widget.uid)
-                                    FollowButton(
-                                      text: 'Edit Profile',
-                                      backgroundColor: mobileBackgroundColor,
-                                      textColor: Colors.white,
-                                      borderColor: Colors.grey,
-                                      function: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                EditProfileScreen(
-                                              user: userData!,
+                                  currentUserId == widget.uid
+                                      // 🆕 START: Change to "Edit Profile" button
+                                      ? FollowButton(
+                                          text: 'Edit Profile',
+                                          backgroundColor:
+                                              mobileBackgroundColor,
+                                          textColor: Colors.white,
+                                          borderColor: Colors.grey,
+                                          function: () {
+                                            // Navigate to edit profile screen
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditProfileScreen(
+                                                  user: userData!,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      // 🆕 END: Change to "Edit Profile" button
+                                      : isFollowing
+                                          ? FollowButton(
+                                              text: 'Unfollow',
+                                              backgroundColor: Colors.white,
+                                              textColor: Colors.black,
+                                              borderColor: Colors.grey,
+                                              function: () async {
+                                                await FireStoreMethods()
+                                                    .followUser(
+                                                  currentUserId,
+                                                  userData!.uid, // 🆕 Use model
+                                                );
+                                                // No need for setState, StreamBuilder will handle it
+                                              },
+                                            )
+                                          : FollowButton(
+                                              text: 'Follow',
+                                              backgroundColor: Colors.blue,
+                                              textColor: Colors.white,
+                                              borderColor: Colors.blue,
+                                              function: () async {
+                                                await FireStoreMethods()
+                                                    .followUser(
+                                                  currentUserId,
+                                                  userData!.uid, // 🆕 Use model
+                                                );
+                                                // No need for setState, StreamBuilder will handle it
+                                              },
                                             ),
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  else ...[
-                                    isFollowing
-                                        ? FollowButton(
-                                            text: 'Unfollow',
-                                            backgroundColor: Colors.white,
-                                            textColor: Colors.black,
-                                            borderColor: Colors.grey,
-                                            function: () async {
-                                              await FireStoreMethods().followUser(
-                                                  currentUserId, userData!.uid);
-                                            },
-                                          )
-                                        : FollowButton(
-                                            text: 'Follow',
-                                            backgroundColor: Colors.blue,
-                                            textColor: Colors.white,
-                                            borderColor: Colors.blue,
-                                            function: () async {
-                                              await FireStoreMethods().followUser(
-                                                  currentUserId, userData!.uid);
-                                            },
-                                          ),
-                                    // 🆕 START: Message Button
-                                    FollowButton(
-                                      text: 'Message',
-                                      backgroundColor: Colors.green,
-                                      textColor: Colors.white,
-                                      borderColor: Colors.green,
-                                      function: () {
-                                        final chatId = _createChatId(
-                                            currentUserId, userData!.uid);
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => ChatScreen(
-                                              otherUserId: userData!.uid,
-                                              otherUserName: userData!.username,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    // 🆕 END: Message Button
-                                  ],
                                 ],
                               ),
+                              // 🆕 START: Add Sign Out button separately
                               if (currentUserId == widget.uid)
                                 FollowButton(
                                   text: 'Sign Out',
@@ -178,6 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   },
                                 ),
+                              // 🆕 END: Add Sign Out button separately
                             ],
                           ),
                         ),
@@ -187,7 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(top: 15),
                       child: Text(
-                        userData!.username,
+                        userData!.username, // 🆕 Use model
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
@@ -196,12 +197,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(top: 1),
-                      child: Text(userData!.bio),
+                      child: Text(userData!.bio), // 🆕 Use model
                     ),
                   ],
                 ),
               ),
               const Divider(),
+              // ✅ عرض بوستات المستخدم في GridView
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('posts')
@@ -271,10 +273,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ],
     );
-  }
-
-  String _createChatId(String uid1, String uid2) {
-    final sorted = [uid1, uid2]..sort();
-    return sorted.join('_');
   }
 }

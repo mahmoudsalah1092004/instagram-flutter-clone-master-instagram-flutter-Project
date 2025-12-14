@@ -1,5 +1,4 @@
 // resources/firestore_methods.dart
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:instagram_clone_flutter/models/post.dart';
@@ -19,19 +18,12 @@ class FireStoreMethods {
   ) async {
     String res = "Some error occurred";
     try {
-      // رفع الصورة في bucket الخاص بالمشروع الجديد
-      String photoUrl = await StorageMethods().uploadImageToStorage(
-        'posts',
-        file,
-        true,
-      );
-
-      if (kDebugMode) {
-        print("🔥 Uploaded image URL: $photoUrl");
-      }
-
+      // رفع الصورة وتوليد ID فريد للبوست
+      String photoUrl =
+          await StorageMethods().uploadImageToStorage('posts', file, true);
       String postId = const Uuid().v1();
 
+      // إنشاء object من نوع Post
       Post post = Post(
         description: description,
         uid: uid,
@@ -43,7 +35,7 @@ class FireStoreMethods {
         profImage: profImage,
       );
 
-      // حفظ البوست في Firestore الجديد
+      // حفظ البوست في Firebase Firestore
       await _firestore.collection('posts').doc(postId).set(post.toJson());
       res = "success";
     } catch (err) {
@@ -52,6 +44,29 @@ class FireStoreMethods {
     return res;
   }
 
+  // ✅ لايك / أنلايك بوست
+  Future<String> likePost(String postId, String uid, List likes) async {
+    String res = "Some error occurred";
+    try {
+      if (likes.contains(uid)) {
+        // إزالة اللايك
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayRemove([uid]),
+        });
+      } else {
+        // إضافة لايك
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayUnion([uid]),
+        });
+      }
+      res = 'success';
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
+  // ✅ كتابة تعليق جديد
   Future<String> postComment(
     String postId,
     String text,
@@ -63,6 +78,7 @@ class FireStoreMethods {
     try {
       if (text.isNotEmpty) {
         String commentId = const Uuid().v1();
+
         await _firestore
             .collection('posts')
             .doc(postId)
@@ -86,25 +102,7 @@ class FireStoreMethods {
     return res;
   }
 
-  Future<String> likePost(String postId, String uid, List likes) async {
-    String res = "Some error occurred";
-    try {
-      if (likes.contains(uid)) {
-        await _firestore.collection('posts').doc(postId).update({
-          'likes': FieldValue.arrayRemove([uid]),
-        });
-      } else {
-        await _firestore.collection('posts').doc(postId).update({
-          'likes': FieldValue.arrayUnion([uid]),
-        });
-      }
-      res = 'success';
-    } catch (err) {
-      res = err.toString();
-    }
-    return res;
-  }
-
+  // ✅ حذف بوست
   Future<String> deletePost(String postId) async {
     String res = "Some error occurred";
     try {
@@ -116,6 +114,7 @@ class FireStoreMethods {
     return res;
   }
 
+  // ✅ متابعة / إلغاء متابعة مستخدم (Follow / Unfollow)
   Future<void> followUser(String uid, String followId) async {
     try {
       DocumentSnapshot userSnap =
@@ -124,6 +123,7 @@ class FireStoreMethods {
       List following = (userSnap.data()! as dynamic)['following'];
 
       if (following.contains(followId)) {
+        // 🟠 لو المستخدم بالفعل متابع → الغي المتابعة
         await _firestore.collection('users').doc(followId).update({
           'followers': FieldValue.arrayRemove([uid]),
         });
@@ -132,6 +132,7 @@ class FireStoreMethods {
           'following': FieldValue.arrayRemove([followId]),
         });
       } else {
+        // 🟢 لو المستخدم مش متابع → اعمل متابعة
         await _firestore.collection('users').doc(followId).update({
           'followers': FieldValue.arrayUnion([uid]),
         });
