@@ -1,5 +1,6 @@
 // resources/notification_methods.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class NotificationMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -23,7 +24,7 @@ class NotificationMethods {
         'timestamp': DateTime.now(),
       });
     } catch (e) {
-      print('Error adding notification: $e');
+      debugPrint('Error adding notification: $e');
     }
   }
 }

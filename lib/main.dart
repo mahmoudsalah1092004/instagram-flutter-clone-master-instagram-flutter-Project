@@ -14,12 +14,12 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  print("🚀 App starting...");
+  debugPrint("🚀 App starting...");
 
   try {
     // initialise app based on platform- web or mobile
     if (kIsWeb) {
-      print("🌐 Initializing Firebase for Web...");
+      debugPrint("🌐 Initializing Firebase for Web...");
       await Firebase.initializeApp(
         options: const FirebaseOptions(
           apiKey: "AIzaSyCZ-xrXqD5D19Snauto-Fx_nLD7PLrBXGM",
@@ -30,13 +30,13 @@ void main() async {
         ),
       );
     } else {
-      print("📱 Initializing Firebase for Android...");
+      debugPrint("📱 Initializing Firebase for Android...");
       await Firebase.initializeApp();
     }
 
-    print("✅ Firebase initialized successfully!");
+    debugPrint("✅ Firebase initialized successfully!");
   } catch (e) {
-    print("❌ Firebase initialization failed: $e");
+    debugPrint("❌ Firebase initialization failed: $e");
   }
 
   runApp(const MyApp());
@@ -60,27 +60,27 @@ class MyApp extends StatelessWidget {
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
-            print("🔥 Snapshot state: ${snapshot.connectionState}");
-            print("🔥 Has data: ${snapshot.hasData}");
-            print("🔥 Has error: ${snapshot.hasError}");
+            debugPrint("🔥 Snapshot state: ${snapshot.connectionState}");
+            debugPrint("🔥 Has data: ${snapshot.hasData}");
+            debugPrint("🔥 Has error: ${snapshot.hasError}");
 
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
-                print("✅ User is logged in!");
+                debugPrint("✅ User is logged in!");
                 return const ResponsiveLayout(
                   mobileScreenLayout: MobileScreenLayout(),
                   webScreenLayout: WebScreenLayout(),
                 );
               } else if (snapshot.hasError) {
-                print("❌ Error: ${snapshot.error}");
+                debugPrint("❌ Error: ${snapshot.error}");
                 return Center(child: Text('${snapshot.error}'));
               } else {
-                print("👤 No user logged in, going to LoginScreen");
+                debugPrint("👤 No user logged in, going to LoginScreen");
               }
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              print("⏳ Waiting for connection...");
+              debugPrint("⏳ Waiting for connection...");
               return const Center(child: CircularProgressIndicator());
             }
 

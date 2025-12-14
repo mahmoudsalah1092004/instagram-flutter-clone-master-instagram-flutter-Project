@@ -37,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text, password: _passwordController.text);
     if (res == 'success') {
       if (context.mounted) {
+        if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => const ResponsiveLayout(
@@ -55,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
       if (context.mounted) {
+        if (!mounted) return;
         showSnackBar(context, res);
       }
     }
@@ -80,7 +82,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SvgPicture.asset(
                 'assets/ic_instagram.svg',
-                color: const Color.fromARGB(255, 251, 251, 251),
+                colorFilter: const ColorFilter.mode(
+    Color.fromARGB(255, 251, 251, 251), 
+    BlendMode.srcIn
+  ),
                 height: 300,
               ),
               const SizedBox(

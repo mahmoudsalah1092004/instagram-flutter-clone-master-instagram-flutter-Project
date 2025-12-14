@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CommentCard extends StatelessWidget {
-  final snap;
+  final dynamic snap;
   const CommentCard({super.key, required this.snap});
 
   @override

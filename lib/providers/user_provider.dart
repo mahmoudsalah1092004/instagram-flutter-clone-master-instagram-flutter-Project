@@ -16,7 +16,7 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     } else {
       // لو مفيش user في Firestore
-      print("⚠️ No user data found in Firestore for this account.");
+      debugPrint("⚠️ No user data found in Firestore for this account.");
     }
   }
 }

@@ -105,7 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
               // شعار Instagram
               SvgPicture.asset(
                 'assets/ic_instagram.svg',
-                color: primaryColor,
+                colorFilter: const ColorFilter.mode(primaryColor, BlendMode.srcIn),
                 height: 64,
               ),
               const SizedBox(height: 64),

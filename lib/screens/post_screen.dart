@@ -4,7 +4,7 @@ import 'package:instagram_clone_flutter/widgets/post_card.dart';
 
 class PostScreen extends StatelessWidget {
   final Map<String, dynamic> snap;
-  const PostScreen({Key? key, required this.snap}) : super(key: key);
+  const PostScreen({super.key, required this.snap});
 
   @override
   Widget build(BuildContext context) {

@@ -15,7 +15,7 @@ class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key, required this.user});
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
@@ -64,6 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
 
     if (res == 'success') {
+      if (!mounted) return;
       showSnackBar(context, 'Profile Updated!');
       // Refresh the user provider to get the new data
       await Provider.of<UserProvider>(context, listen: false).refreshUser();

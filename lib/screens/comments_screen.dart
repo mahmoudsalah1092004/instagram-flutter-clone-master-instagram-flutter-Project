@@ -13,7 +13,7 @@ class CommentsScreen extends StatefulWidget {
   const CommentsScreen({super.key, required this.postId});
 
   @override
-  _CommentsScreenState createState() => _CommentsScreenState();
+  State<CommentsScreen> createState() => _CommentsScreenState();
 }
 
 class _CommentsScreenState extends State<CommentsScreen> {
@@ -31,12 +31,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
       );
 
       if (res != 'success') {
+        if (!mounted) return;
         if (context.mounted) showSnackBar(context, res);
       }
       setState(() {
         commentEditingController.text = "";
       });
     } catch (err) {
+      if (!mounted) return;
       showSnackBar(
         context,
         err.toString(),
