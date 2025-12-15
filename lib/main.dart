@@ -22,11 +22,12 @@ void main() async {
       debugPrint("🌐 Initializing Firebase for Web...");
       await Firebase.initializeApp(
         options: const FirebaseOptions(
-          apiKey: "AIzaSyCZ-xrXqD5D19Snauto-Fx_nLD7PLrBXGM",
-          appId: "1:585119731880:web:eca6e4b3c42a755cee329d",
-          messagingSenderId: "585119731880",
-          projectId: "instagram-clone-4cea4",
-          storageBucket: 'instagram-clone-4cea4.appspot.com',
+          apiKey: "AIzaSyDdvAlM1dMft1t_hdtFR2jEROgmoTJTadU",
+          appId: "1:784004701594:web:9edee405cee25553baae23",
+          messagingSenderId: "784004701594",
+          projectId: "instagram-clone-flutter-5ca1f",
+          authDomain: "instagram-clone-flutter-5ca1f.firebaseapp.com",
+          storageBucket: 'instagram-clone-flutter-5ca1f.firebasestorage.app',
         ),
       );
     } else {

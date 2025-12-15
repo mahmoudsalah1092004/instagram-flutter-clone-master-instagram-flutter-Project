@@ -2,22 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>585119731880-6raijggsm5b3pvqd9p5q858v1injcssn.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.585119731880-6raijggsm5b3pvqd9p5q858v1injcssn</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBpzdHYWecnEWWgEhdFPvVVuv7faAJlUu0</string>
+	<string>AIzaSyClxDW3qm0LArVZi-YFd7QaC-moRAZ_Lw4</string>
 	<key>GCM_SENDER_ID</key>
-	<string>585119731880</string>
+	<string>784004701594</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.instagramCloneFlutter</string>
 	<key>PROJECT_ID</key>
-	<string>instagram-clone-4cea4</string>
+	<string>instagram-clone-flutter-5ca1f</string>
 	<key>STORAGE_BUCKET</key>
-	<string>instagram-clone-4cea4.appspot.com</string>
+	<string>instagram-clone-flutter-5ca1f.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:585119731880:ios:de1ad85450dd504bee329d</string>
+	<string>1:784004701594:ios:cf1c4f793bc7818abaae23</string>
 </dict>
 </plist>
