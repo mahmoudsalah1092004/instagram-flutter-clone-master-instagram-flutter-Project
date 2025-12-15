@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
 import 'package:instagram_clone_flutter/widgets/post_card.dart';
+import 'package:instagram_clone_flutter/screens/chat_list_screen.dart';
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
@@ -13,8 +14,10 @@ class FeedScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: mobileBackgroundColor,
+
+      // ---------- AppBar ----------
       appBar: screenWidth > 600
-          ? null // زي إنستجرام Web - ملهاش AppBar
+          ? null
           : AppBar(
               backgroundColor: mobileBackgroundColor,
               title: const Text(
@@ -26,13 +29,14 @@ class FeedScreen extends StatelessWidget {
               ),
               centerTitle: false,
             ),
-      body: StreamBuilder(
+
+      // ---------- Feed ----------
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
             .collection('posts')
             .orderBy('datePublished', descending: true)
             .snapshots(),
-        builder: (context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -50,7 +54,7 @@ class FeedScreen extends StatelessWidget {
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               return Center(
-                child: SizedBox(
+                child: Container(
                   width: screenWidth > 600 ? 550 : double.infinity,
                   child: PostCard(
                     snap: snapshot.data!.docs[index].data(),
@@ -58,6 +62,20 @@ class FeedScreen extends StatelessWidget {
                 ),
               );
             },
+          );
+        },
+      ),
+
+      // ---------- Messages Button ----------
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.purple,
+        child: const Icon(Icons.messenger_outline),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ChatListScreen(),
+            ),
           );
         },
       ),
