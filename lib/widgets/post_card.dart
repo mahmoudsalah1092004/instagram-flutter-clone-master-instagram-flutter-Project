@@ -149,12 +149,24 @@ class _PostCardState extends State<PostCard> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Image.network(
-                  widget.snap['postUrl'].toString(),
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                SizedBox(
+  width: double.infinity, // تاخد عرض الشاشة بالكامل
+  child: Image.network(
+    widget.snap['postUrl'].toString(), // رابط الصورة
+    // شيلنا الـ height وشيلنا الـ fit
+    
+    // كود اللودينج (عشان يظهر دايرة تحميل لحد ما الصورة تظهر)
+    loadingBuilder: (context, child, loadingProgress) {
+      if (loadingProgress == null) return child;
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    },
+    
+    // كود الخطأ (عشان لو الصورة باظت ميعملش شاشة حمراء)
+    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+  ),
+),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
                   opacity: isLikeAnimating ? 1 : 0,

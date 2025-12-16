@@ -51,23 +51,27 @@ class _SearchScreenState extends State<SearchScreen> {
                 return ListView.builder(
                   itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) {
+                    var data = (snapshot.data! as dynamic).docs[index].data();
+
                     return InkWell(
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ProfileScreen(
-                            uid: (snapshot.data! as dynamic).docs[index]['uid'],
+                            uid: data.containsKey('uid') ? data['uid'] : '',
                           ),
                         ),
                       ),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(
-                            (snapshot.data! as dynamic).docs[index]['photoUrl'],
-                          ),
-                          radius: 16,
+                            data.containsKey('photoUrl') 
+                ? data['photoUrl'] 
+                : 'https://i.stack.imgur.com/l60Hf.png',
+          ),
                         ),
                         title: Text(
-                          (snapshot.data! as dynamic).docs[index]['username'],
+          // نفس الكلام للاسم
+          data.containsKey('username') ? data['username'] : 'Unknown User',
                         ),
                       ),
                     );
