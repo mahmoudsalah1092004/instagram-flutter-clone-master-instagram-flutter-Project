@@ -11,17 +11,23 @@ class NotificationMethods {
     required String receiverUid,
     required String username,
     required String userPhoto,
+    String? postId,
     String? postImage,
   }) async {
     try {
-      await _firestore.collection('notifications').add({
+      await _firestore
+          .collection('users')
+          .doc(receiverUid)
+          .collection('notifications')
+          .add({
         'type': type,
-        'senderUid': senderUid,
-        'receiverUid': receiverUid,
-        'username': username,
-        'userPhoto': userPhoto,
+        'fromUid': senderUid,
+        'fromUsername': username,
+        'fromPhoto': userPhoto,
+        'postId': postId,
         'postImage': postImage,
-        'timestamp': DateTime.now(),
+        'date': Timestamp.now(),
+        'seen': false,
       });
     } catch (e) {
       debugPrint('Error adding notification: $e');
