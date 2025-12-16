@@ -11,6 +11,7 @@ import 'package:instagram_clone_flutter/utils/utils.dart';
 import 'package:instagram_clone_flutter/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:instagram_clone_flutter/screens/profile_screen.dart';
 
 class PostCard extends StatefulWidget {
   final dynamic snap;
@@ -85,57 +86,85 @@ class _PostCardState extends State<PostCard> {
         children: [
           // HEADER
           Container(
-            padding:
-                const EdgeInsets.symmetric(vertical: 4, horizontal: 16).copyWith(right: 0),
-            child: Row(
-              children: <Widget>[
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage(
-                    widget.snap['profImage'].toString(),
-                  ),
+  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16).copyWith(right: 0),
+  child: Row(
+    children: [
+      // 1. الجزء الخاص بالانتقال للبروفايل
+      Expanded(
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ProfileScreen(
+                  uid: widget.snap['uid'].toString(),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Text(
+              ),
+            );
+          },
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage(
+                  widget.snap['profImage'].toString(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       widget.snap['username'].toString(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                // ✅ السماح بالحذف فقط لصاحب البوست
-                if (widget.snap['uid'].toString() == user.uid)
-                  IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          child: ListView(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shrinkWrap: true,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  deletePost(widget.snap['postId'].toString());
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: Text('Delete'),
-                                ),
-                              ),
-                            ],
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      // 2. الجزء الخاص بمسح البوست (يظهر فقط لصاحب البوست)
+      if (widget.snap['uid'].toString() == user.uid)
+        IconButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => Dialog(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shrinkWrap: true,
+                  children: [
+                    'Delete',
+                  ]
+                      .map(
+                        (e) => InkWell(
+                          onTap: () async {
+                            // دالة المسح الحقيقية
+                            await FireStoreMethods().deletePost(widget.snap['postId']);
+                            Navigator.of(context).pop();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            child: Text(e),
                           ),
                         ),
-                      );
-                    },
-                  ),
-              ],
-            ),
-          ),
-
+                      )
+                      .toList(),
+                ),
+              ),
+            );
+          },
+          icon: const Icon(Icons.more_vert),
+        ),
+    ],
+  ),
+),
           // IMAGE
           GestureDetector(
             onDoubleTap: () {
