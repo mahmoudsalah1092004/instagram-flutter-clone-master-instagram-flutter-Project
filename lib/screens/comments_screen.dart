@@ -20,16 +20,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   String username = '';
   String profilePic = '';
-  String postOwnerId = ''; // 👈 معرف صاحب البوست
 
   @override
   void initState() {
     super.initState();
     _getUserData();
-    _getPostOwnerId();
   }
 
-  // جلب بيانات المستخدم الحالي
+  // جلب بيانات المستخدم من Firestore
   void _getUserData() async {
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
         .collection('users')
@@ -44,34 +42,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
     }
   }
 
-  // جلب UID صاحب البوست
-  void _getPostOwnerId() async {
-    DocumentSnapshot postDoc = await FirebaseFirestore.instance
-        .collection('posts')
-        .doc(widget.postId)
-        .get();
-
-    if (postDoc.exists) {
-      setState(() {
-        postOwnerId = (postDoc.data() as Map<String, dynamic>)['uid'] ?? '';
-      });
-    }
-  }
-
-  // نشر تعليق
   void postComment() async {
-    if (_commentController.text.isNotEmpty && postOwnerId.isNotEmpty) {
+    if (_commentController.text.isNotEmpty) {
       await FireStoreMethods().postComment(
         widget.postId,
         _commentController.text,
         FirebaseAuth.instance.currentUser!.uid,
         username,
         profilePic,
-        postOwnerId,
       );
       _commentController.clear();
 
-      // Scroll to bottom بعد إضافة التعليق
+      // Scroll to bottom
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent + 80,
         duration: const Duration(milliseconds: 300),
@@ -124,7 +106,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
                     var comment = snapshot.data!.docs[index].data();
-                    var commentId = snapshot.data!.docs[index].id;
+                    var commentId = snapshot.data!.docs[index].id; // جاي من Firestore
                     Timestamp timestamp = comment['datePublished'] as Timestamp;
                     String formattedDate = DateFormat('MMM d, yyyy').format(timestamp.toDate());
 
@@ -169,6 +151,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                               ],
                             ),
                           ),
+                          // زر حذف التعليق لو ده كومنت المستخدم
                           if (comment['uid'] == FirebaseAuth.instance.currentUser!.uid)
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
@@ -181,7 +164,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                     actions: [
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.of(ctx).pop();
+                                          Navigator.of(ctx).pop(); // اغلاق الـ Dialog
                                         },
                                         child: const Text('Cancel'),
                                       ),
@@ -193,7 +176,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                               .collection('comments')
                                               .doc(commentId)
                                               .delete();
-                                          Navigator.of(ctx).pop();
+                                          Navigator.of(ctx).pop(); // اغلاق الـ Dialog بعد الحذف
                                         },
                                         child: const Text('Delete', style: TextStyle(color: Colors.red)),
                                       ),

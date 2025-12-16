@@ -92,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color:
-                              isMe ? Colors.purple : Colors.white,
+                              isMe ? Colors.blue: Colors.brown[900],
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: msg["type"] == "image"
