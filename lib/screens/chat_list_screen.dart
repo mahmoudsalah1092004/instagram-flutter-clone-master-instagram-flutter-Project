@@ -115,7 +115,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         title: Text(userName),
                         subtitle: Text(lastMessage), // بس آخر رسالة فقط
                         onTap: () {
-                          final chatId = _createChatId(myUid, userId);
                           Navigator.push(
                             context,
                             MaterialPageRoute(

@@ -79,7 +79,7 @@ class FeedScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         // 🟢 حافظنا هنا على تظبيط مقاس الويب عشان الصورة متفرشش
         return Center(
-          child: Container(
+          child: SizedBox(
             width: screenWidth > 600 ? 550 : double.infinity,
             child: PostCard(
               snap: filteredPosts[index].data(),

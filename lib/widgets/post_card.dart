@@ -147,6 +147,7 @@ class _PostCardState extends State<PostCard> {
                           onTap: () async {
                             // دالة المسح الحقيقية
                             await FireStoreMethods().deletePost(widget.snap['postId']);
+                            if (!context.mounted) return;
                             Navigator.of(context).pop();
                           },
                           child: Container(

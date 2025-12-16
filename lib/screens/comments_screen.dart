@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 
 class CommentsScreen extends StatefulWidget {
   final String postId;
-  const CommentsScreen({Key? key, required this.postId}) : super(key: key);
+  const CommentsScreen({super.key, required this.postId});
 
   @override
   State<CommentsScreen> createState() => _CommentsScreenState();
@@ -176,6 +176,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                               .collection('comments')
                                               .doc(commentId)
                                               .delete();
+                                              if (!ctx.mounted) return;
                                           Navigator.of(ctx).pop(); // اغلاق الـ Dialog بعد الحذف
                                         },
                                         child: const Text('Delete', style: TextStyle(color: Colors.red)),

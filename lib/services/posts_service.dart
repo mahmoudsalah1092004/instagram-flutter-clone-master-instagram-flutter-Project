@@ -26,6 +26,5 @@ class PostsService {
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    print('✅ تم إنشاء أول بوست بنجاح');
   }
 }

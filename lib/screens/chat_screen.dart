@@ -1,7 +1,6 @@
 // screens/chat_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/chat_service.dart';
@@ -78,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   reverse: true,
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
-                    final msg = docs[index].data() as Map<String, dynamic>;
+                    final msg = docs[index].data();
                     final isMe = msg["senderId"] ==
                         FirebaseAuth.instance.currentUser!.uid;
 
