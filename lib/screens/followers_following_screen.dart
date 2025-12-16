@@ -7,7 +7,11 @@ class FollowersFollowingScreen extends StatefulWidget {
   final String uid;
   final bool showFollowers; // true = followers, false = following
 
-  const FollowersFollowingScreen({super.key, required this.uid, required this.showFollowers});
+  const FollowersFollowingScreen({
+    Key? key,
+    required this.uid,
+    required this.showFollowers,
+  }) : super(key: key);
 
   @override
   State<FollowersFollowingScreen> createState() => _FollowersFollowingScreenState();

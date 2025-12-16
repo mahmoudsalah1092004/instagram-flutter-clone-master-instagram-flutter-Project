@@ -44,8 +44,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
         ),
       ),
-      body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        future: FirebaseFirestore.instance.collection('users').doc(myUid).get(),
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance.collection('users').doc(myUid).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -79,8 +79,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 return const Center(child: Text("لا يوجد نتائج"));
               }
 
-              return FutureBuilder<List<Map<String, dynamic>>>(
-                future: _getLastMessages(users),
+              return StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _getLastMessagesStream(users),
                 builder: (context, lastMsgSnap) {
                   if (!lastMsgSnap.hasData) {
                     return const Center(child: CircularProgressIndicator());
@@ -113,7 +113,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           child: userPhoto.isEmpty ? const Icon(Icons.person) : null,
                         ),
                         title: Text(userName),
-                        subtitle: Text(lastMessage),
+                        subtitle: Text(lastMessage), // بس آخر رسالة فقط
                         onTap: () {
                           final chatId = _createChatId(myUid, userId);
                           Navigator.push(
@@ -143,29 +143,34 @@ class _ChatListScreenState extends State<ChatListScreen> {
     return sorted.join('_');
   }
 
-  Future<List<Map<String, dynamic>>> _getLastMessages(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> users) async {
-    List<Map<String, dynamic>> result = [];
+  Stream<List<Map<String, dynamic>>> _getLastMessagesStream(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> users) async* {
+    for (;;) {
+      List<Map<String, dynamic>> result = [];
+      for (var userDoc in users) {
+        final userId = userDoc.id;
+        final userData = userDoc.data();
+        final chatId = _createChatId(myUid, userId);
 
-    for (var userDoc in users) {
-      final userId = userDoc.id;
-      final userData = userDoc.data();
+        final chatSnap = await FirebaseFirestore.instance
+            .collection('chats')
+            .doc(chatId)
+            .snapshots()
+            .first;
 
-      final chatId = _createChatId(myUid, userId);
-      final chatSnap = await FirebaseFirestore.instance.collection('chats').doc(chatId).get();
+        final lastMessage = chatSnap.data()?['lastMessage'] as String?;
+        final lastMessageTime = chatSnap.data()?['lastMessageTime'] as Timestamp?;
 
-      final lastMessage = chatSnap.data()?['lastMessage'] as String?;
-      final lastMessageTime = chatSnap.data()?['lastMessageTime'] as Timestamp?;
-
-      result.add({
-        'id': userId,
-        'username': userData['username'] ?? 'User',
-        'photoUrl': userData['photoUrl'] ?? '',
-        'lastMessage': lastMessage ?? "",
-        'lastMessageTime': lastMessageTime,
-      });
+        result.add({
+          'id': userId,
+          'username': userData['username'] ?? 'User',
+          'photoUrl': userData['photoUrl'] ?? '',
+          'lastMessage': lastMessage ?? "",
+          'lastMessageTime': lastMessageTime,
+        });
+      }
+      yield result;
+      await Future.delayed(const Duration(seconds: 1)); // تحديث كل ثانية
     }
-
-    return result;
   }
 }
