@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
 import 'package:instagram_clone_flutter/widgets/post_card.dart';
 import 'package:instagram_clone_flutter/screens/chat_list_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:instagram_clone_flutter/models/user.dart' as model;
+import 'package:instagram_clone_flutter/providers/user_provider.dart';
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
@@ -11,6 +14,13 @@ class FeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final model.User? user = Provider.of<UserProvider>(context).getUser;
+
+    if (user == null) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
 
     return Scaffold(
       backgroundColor: mobileBackgroundColor,
@@ -31,40 +41,55 @@ class FeedScreen extends StatelessWidget {
             ),
 
       // ---------- Feed ----------
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('posts')
-            .orderBy('datePublished', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: StreamBuilder(
+  stream: FirebaseFirestore.instance
+      .collection('posts')
+      .orderBy('datePublished', descending: true)
+      .snapshots(),
+  builder: (context,
+      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+    
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'No posts yet',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-            );
-          }
+    // 🟢 الفلتر السحري:
+    // عرض البوستات فقط للمتابعين + بوستاتي
+    final filteredPosts = snapshot.data!.docs.where((post) {
+      return user.following.contains(post['uid']) || 
+             user.uid == post['uid'];
+    }).toList();
 
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              return Center(
-                child: Container(
-                  width: screenWidth > 600 ? 550 : double.infinity,
-                  child: PostCard(
-                    snap: snapshot.data!.docs[index].data(),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+    // لو مفيش بوستات
+    if (filteredPosts.isEmpty) {
+      return const Center(
+        child: Text(
+          "Follow people to see their posts! 👥",
+          style: TextStyle(
+              fontSize: 18, 
+              fontWeight: FontWeight.bold,
+              color: Colors.white, // خليت اللون أبيض عشان يبان لو الخلفية سوداء
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: filteredPosts.length,
+      itemBuilder: (context, index) {
+        // 🟢 حافظنا هنا على تظبيط مقاس الويب عشان الصورة متفرشش
+        return Center(
+          child: Container(
+            width: screenWidth > 600 ? 550 : double.infinity,
+            child: PostCard(
+              snap: filteredPosts[index].data(),
+            ),
+          ),
+        );
+      },
+    );
+  },
+),
 
       // ---------- Messages Button ----------
       floatingActionButton: FloatingActionButton(
