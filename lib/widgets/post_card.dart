@@ -65,11 +65,10 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final model.User? user = userProvider.getUser; // ✅ بقى ممكن يكون null
+    final model.User? user = userProvider.getUser; 
 
     final width = MediaQuery.of(context).size.width;
 
-    // ✅ لو الـ user لسه ما اتحملش
     if (user == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -89,7 +88,6 @@ class _PostCardState extends State<PostCard> {
   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16).copyWith(right: 0),
   child: Row(
     children: [
-      // 1. الجزء الخاص بالانتقال للبروفايل
       Expanded(
         child: InkWell(
           onTap: () {
@@ -129,7 +127,6 @@ class _PostCardState extends State<PostCard> {
         ),
       ),
 
-      // 2. الجزء الخاص بمسح البوست (يظهر فقط لصاحب البوست)
       if (widget.snap['uid'].toString() == user.uid)
         IconButton(
           onPressed: () {
@@ -145,7 +142,6 @@ class _PostCardState extends State<PostCard> {
                       .map(
                         (e) => InkWell(
                           onTap: () async {
-                            // دالة المسح الحقيقية
                             await FireStoreMethods().deletePost(widget.snap['postId']);
                             if (!context.mounted) return;
                             Navigator.of(context).pop();
@@ -180,12 +176,10 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 SizedBox(
-  width: double.infinity, // تاخد عرض الشاشة بالكامل
+  width: double.infinity, 
   child: Image.network(
-    widget.snap['postUrl'].toString(), // رابط الصورة
-    // شيلنا الـ height وشيلنا الـ fit
+    widget.snap['postUrl'].toString(), 
     
-    // كود اللودينج (عشان يظهر دايرة تحميل لحد ما الصورة تظهر)
     loadingBuilder: (context, child, loadingProgress) {
       if (loadingProgress == null) return child;
       return const Center(
@@ -193,7 +187,6 @@ class _PostCardState extends State<PostCard> {
       );
     },
     
-    // كود الخطأ (عشان لو الصورة باظت ميعملش شاشة حمراء)
     errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
   ),
 ),

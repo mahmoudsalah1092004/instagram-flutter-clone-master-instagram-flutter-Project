@@ -11,7 +11,7 @@ class AuthMethods {
 
   // ... (keep existing methods: getUserDetails, signUpUser, loginUser, signOut) ...
 
-  // ✅ get user details (with check if doc exists)
+  // get user details (with check if doc exists)
   Future<model.User?> getUserDetails() async {
     User? currentUser = _auth.currentUser;
     if (currentUser == null) return null;
@@ -20,14 +20,13 @@ class AuthMethods {
         await _firestore.collection('users').doc(currentUser.uid).get();
 
     if (!documentSnapshot.exists) {
-      // المستخدم مش موجود في Firestore
       return null;
     }
 
     return model.User.fromSnap(documentSnapshot);
   }
 
-  // ✅ Signing Up User
+  // Signing Up User
   Future<String> signUpUser({
     required String email,
     required String password,
@@ -37,22 +36,18 @@ class AuthMethods {
   }) async {
     String res = "Some error Occurred";
     try {
-      // تأكد إن كل الحقول مش فاضية
       if (email.isNotEmpty &&
           password.isNotEmpty &&
           username.isNotEmpty &&
           bio.isNotEmpty) {
-        // تسجيل المستخدم في Firebase Auth
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-        // رفع الصورة على Firebase Storage
         String photoUrl = await StorageMethods()
             .uploadImageToStorage('profilePics', file, false);
 
-        // إنشاء object من model.User
         model.User user = model.User(
           username: username,
           uid: cred.user!.uid,
@@ -63,7 +58,6 @@ class AuthMethods {
           following: [],
         );
 
-        // حفظ المستخدم في Firestore
         await _firestore.collection("users").doc(cred.user!.uid).set(user.toJson());
 
         res = "success";
@@ -76,14 +70,13 @@ class AuthMethods {
     return res;
   }
 
-  // ✅ Logging in user
+  // Logging in user
   Future<String> loginUser({
     required String email,
     required String password,
   }) async {
     String res = "Some error Occurred";
     try {
-      // لازم الاتنين مش فاضيين
       if (email.isNotEmpty && password.isNotEmpty) {
         await _auth.signInWithEmailAndPassword(
           email: email,
@@ -99,12 +92,12 @@ class AuthMethods {
     return res;
   }
 
-  // ✅ Sign out user
+  // Sign out user
   Future<void> signOut() async {
     await _auth.signOut();
   }
 
-  // 🆕 START: Add updateUserData method
+  // START: Add updateUserData method
   Future<String> updateUserData({
     required String uid,
     required String username,

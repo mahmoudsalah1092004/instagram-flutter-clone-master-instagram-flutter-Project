@@ -8,9 +8,7 @@ import 'package:uuid/uuid.dart';
 class FireStoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // -------------------------------------------
-  // 📸 رفع بوست جديد
-  // -------------------------------------------
+
   Future<String> uploadPost(
     String description,
     Uint8List file,
@@ -46,9 +44,7 @@ class FireStoreMethods {
     return res;
   }
 
-  // -------------------------------------------
-  // ❤️ لايك / أنلايك بوست
-  // -------------------------------------------
+
   Future<String> likePost(String postId, String uid, List likes) async {
     String res = "Some error occurred";
     try {
@@ -68,9 +64,6 @@ class FireStoreMethods {
     return res;
   }
 
-  // -------------------------------------------
-  // 💬 إضافة كومنت + دعم mentions
-  // -------------------------------------------
   Future<String> postComment(
     String postId,
     String text,
@@ -96,7 +89,7 @@ class FireStoreMethods {
           'text': text,
           'commentId': commentId,
           'likes': [],
-          'mentions': mentions, // ⬅️ إضافة mentions
+          'mentions': mentions,
           'datePublished': FieldValue.serverTimestamp(),
         });
         res = 'success';
@@ -109,9 +102,7 @@ class FireStoreMethods {
     return res;
   }
 
-  // -------------------------------------------
-  // 💬 إضافة رد (Reply) + دعم mentions
-  // -------------------------------------------
+
   Future<void> postReply(
     String postId,
     String commentId,
@@ -138,7 +129,7 @@ class FireStoreMethods {
         'name': name,
         'profilePic': profilePic,
         'likes': [],
-        'mentions': mentions, // ⬅️ إضافة mentions
+        'mentions': mentions, 
         'datePublished': FieldValue.serverTimestamp(),
       });
     } catch (err) {
@@ -146,9 +137,7 @@ class FireStoreMethods {
     }
   }
 
-  // -------------------------------------------
-  // ❤️ لايك / أنلايك كومنت أو رد
-  // -------------------------------------------
+
   Future<void> likeComment(
       String postId, String commentId, String uid, List likes,
       {String? replyId}) async {
@@ -180,18 +169,12 @@ class FireStoreMethods {
     }
   }
 
-  // -------------------------------------------
-  // استخراج الـ mentions من النص
-  // -------------------------------------------
   List<String> _extractMentions(String text) {
     final regex = RegExp(r'\@(\w+)');
     final matches = regex.allMatches(text);
     return matches.map((m) => m.group(1)!).toList();
   }
 
-  // -------------------------------------------
-  // 🗑️ حذف بوست
-  // -------------------------------------------
   Future<String> deletePost(String postId) async {
     String res = "Some error occurred";
     try {
@@ -203,9 +186,7 @@ class FireStoreMethods {
     return res;
   }
 
-  // -------------------------------------------
-  // 👥 متابعة / إلغاء متابعة
-  // -------------------------------------------
+
   Future<void> followUser(String uid, String followId) async {
     try {
       DocumentSnapshot userSnap = await _firestore.collection('users').doc(uid).get();

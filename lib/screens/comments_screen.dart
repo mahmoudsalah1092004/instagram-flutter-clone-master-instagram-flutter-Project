@@ -46,7 +46,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
   void postComment() async {
     if (_commentController.text.isNotEmpty) {
       if (replyingToCommentId != null) {
-        // إرسال رد
         await FireStoreMethods().postReply(
           widget.postId,
           replyingToCommentId!,
@@ -55,9 +54,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
           username,
           profilePic,
         );
-        replyingToCommentId = null; // إعادة تعيين بعد الرد
+        replyingToCommentId = null; 
       } else {
-        // إرسال كومنت عادي
         await FireStoreMethods().postComment(
           widget.postId,
           _commentController.text,
@@ -279,7 +277,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                 ),
                             ],
                           ),
-                          // الردود
                           StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection('posts')

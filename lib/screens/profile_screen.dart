@@ -120,11 +120,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                               ),
-                              // هذا هو الـ Row الموجود تحت الـ Stat Columns (Posts, Followers, Following)
 Row(
   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
   children: [
-    // الحالة الأولى: لو البروفايل ده بتاعي أنا (Edit Profile)
     if (currentUserId == widget.uid)
       FollowButton(
         text: 'Edit Profile',
@@ -141,7 +139,6 @@ Row(
           );
         },
       )
-    // الحالة الثانية: لو البروفايل ده لشخص تاني
     else ...[
       Expanded(
       child: isFollowing
@@ -179,14 +176,13 @@ Row(
             ),
       ),
             
-      // مسافة صغيرة بين الزرارين
       const SizedBox(width: 5),
 
       Expanded(
       child: FollowButton(
         text: 'Message',
-        backgroundColor: Colors.transparent, // أو mobileBackgroundColor
-        textColor: primaryColor, // لون النص أبيض
+        backgroundColor: Colors.transparent, 
+        textColor: primaryColor, 
         borderColor: Colors.grey,
         function: () {
           Navigator.of(context).push(
@@ -202,7 +198,6 @@ Row(
       ),
     ],
     
-    // الحالة الثالثة: زرار تسجيل الخروج (يظهر فقط لو البروفايل بتاعي)
     
   ],
 ),

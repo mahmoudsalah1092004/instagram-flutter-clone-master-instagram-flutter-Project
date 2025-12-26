@@ -33,9 +33,7 @@ android {
 
     buildTypes {
         release {
-            // ✅ استخدم التوقيع الافتراضي مؤقتًا (debug)
             signingConfig signingConfigs.debug
-            // تقدر تضيف keystore بتاعك هنا لاحقًا
             minifyEnabled false
             shrinkResources false
         }
@@ -44,7 +42,6 @@ android {
         }
     }
 
-    // ✅ علشان Firebase و plugins ميعملوش crash
     packagingOptions {
         resources {
             excludes += [

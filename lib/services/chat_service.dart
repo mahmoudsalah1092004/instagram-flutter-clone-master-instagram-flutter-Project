@@ -76,7 +76,7 @@ class ChatService {
     batch.set(msgRef, msgData);
     batch.set(chatDoc, {
       'members': chatId.split('_'),
-      'lastMessage': '[صورة]',
+      'lastMessage': '[Image]',
       'lastMessageTime': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 

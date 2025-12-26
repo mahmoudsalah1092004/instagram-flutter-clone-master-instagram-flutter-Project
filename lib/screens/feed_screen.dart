@@ -71,18 +71,15 @@ class _FeedScreenState extends State<FeedScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // 🟢 عرض بوستات المتابعين + بوستاتي
           final filteredPosts = snapshot.data!.docs.where((post) {
             return user.following.contains(post['uid']) ||
                 user.uid == post['uid'];
           }).toList();
 
-          // 🔀 ترتيب عشوائي بعد الريفريش
           if (isRandom) {
             filteredPosts.shuffle();
           }
 
-          // لو مفيش بوستات
           if (filteredPosts.isEmpty) {
             return const Center(
               child: Text(

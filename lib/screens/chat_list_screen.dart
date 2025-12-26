@@ -19,14 +19,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("الرسائل"),
+        title: const Text("Messages"),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: "ابحث عن شخص...",
+                hintText: "Look for someone...",
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white24,
@@ -113,7 +113,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           child: userPhoto.isEmpty ? const Icon(Icons.person) : null,
                         ),
                         title: Text(userName),
-                        subtitle: Text(lastMessage), // بس آخر رسالة فقط
+                        subtitle: Text(lastMessage), 
                         onTap: () {
                           Navigator.push(
                             context,
@@ -169,7 +169,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         });
       }
       yield result;
-      await Future.delayed(const Duration(seconds: 1)); // تحديث كل ثانية
+      await Future.delayed(const Duration(seconds: 1)); 
     }
   }
 }

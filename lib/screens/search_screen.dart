@@ -16,23 +16,23 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String query = searchController.text.toLowerCase(); // لجعل البحث غير حساس لحروف كبيرة/صغيرة
+    String query = searchController.text.toLowerCase(); 
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
         title: TextFormField(
           controller: searchController,
-          decoration: const InputDecoration(labelText: 'ابحث عن مستخدم...'),
+          decoration: const InputDecoration(labelText: 'Search for a user...'),
           onChanged: (_) {
-            setState(() {}); // إعادة بناء الشاشة مع كل حرف
+            setState(() {}); 
           },
         ),
       ),
       body: query.isEmpty
           ? const Center(
               child: Text(
-                'ابدأ بكتابة اسم المستخدم لعرض النتائج',
+                'Start by typing your username to view the results',
                 style: TextStyle(color: Colors.white),
               ),
             )
@@ -52,7 +52,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 if (users.isEmpty) {
                   return const Center(
                     child: Text(
-                      'لا يوجد مستخدم بهذا الاسم',
+                      'No user found with this username',
                       style: TextStyle(color: Colors.white),
                     ),
                   );

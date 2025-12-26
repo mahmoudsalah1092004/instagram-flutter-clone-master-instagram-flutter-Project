@@ -36,7 +36,6 @@ class _SignupScreenState extends State<SignupScreen> {
     _bioController.dispose();
   }
 
-  // 📸 اختيار الصورة من المعرض
   selectImage() async {
     Uint8List im = await pickImage(ImageSource.gallery);
     setState(() {
@@ -44,9 +43,7 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  // 🧾 دالة التسجيل
   void signUpUser() async {
-    // تأكد إن في صورة متختارة
     if (_image == null) {
       showSnackBar(context, "Please select a profile image");
       return;
@@ -56,7 +53,6 @@ class _SignupScreenState extends State<SignupScreen> {
       _isLoading = true;
     });
 
-    // تسجيل المستخدم
     String res = await AuthMethods().signUpUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
@@ -72,7 +68,6 @@ class _SignupScreenState extends State<SignupScreen> {
         _isLoading = false;
       });
 
-      // التنقل لصفحة الرئيسية
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const ResponsiveLayout(
@@ -102,7 +97,6 @@ class _SignupScreenState extends State<SignupScreen> {
             children: [
               const Spacer(flex: 2),
 
-              // شعار Instagram
               SvgPicture.asset(
                 'assets/ic_instagram.svg',
                 colorFilter: const ColorFilter.mode(primaryColor, BlendMode.srcIn),
@@ -110,7 +104,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 64),
 
-              // صورة البروفايل
               Stack(
                 children: [
                   _image != null
@@ -138,7 +131,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 24),
 
-              // حقل الاسم
               TextFieldInput(
                 hintText: 'Enter your username',
                 textInputType: TextInputType.text,
@@ -146,7 +138,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 24),
 
-              // حقل الإيميل
               TextFieldInput(
                 hintText: 'Enter your email',
                 textInputType: TextInputType.emailAddress,
@@ -154,7 +145,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 24),
 
-              // حقل الباسورد
               TextFieldInput(
                 hintText: 'Enter your password',
                 textInputType: TextInputType.text,
@@ -163,7 +153,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 24),
 
-              // حقل الـ bio
               TextFieldInput(
                 hintText: 'Enter your bio',
                 textInputType: TextInputType.text,
@@ -171,7 +160,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 24),
 
-              // زر التسجيل
               InkWell(
                 onTap: signUpUser,
                 child: Container(
@@ -193,7 +181,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
               const Spacer(flex: 2),
 
-              // رابط تسجيل الدخول
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

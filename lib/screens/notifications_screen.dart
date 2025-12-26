@@ -49,7 +49,6 @@ class NotificationsScreen extends StatelessWidget {
                 trailing: notif['type'] == 'follow'
                     ? TextButton(
                         onPressed: () {
-                          // تقدر هنا تخليها تعمل Follow Back
                         },
                         child: const Text('Follow back'),
                       )

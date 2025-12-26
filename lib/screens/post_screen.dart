@@ -19,7 +19,7 @@ class PostScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          PostCard(snap: snap), // هتظهر الصورة بنسبة 4:5 زي الانستجرام
+          PostCard(snap: snap), 
         ],
       ),
     );

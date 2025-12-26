@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 
 class PostsService {
-  // رفع الصورة على Firebase Storage
   static Future<String> uploadImage(File imageFile) async {
     final storageRef = FirebaseStorage.instance
         .ref()
@@ -15,7 +14,6 @@ class PostsService {
     return imageUrl;
   }
 
-  // إضافة أول Document في Collection 'posts'
   static Future<void> addPost(File imageFile, String caption, String uid) async {
     final imageUrl = await uploadImage(imageFile);
 

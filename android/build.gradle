@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.25' // آخر إصدار مستقر متوافق
+    ext.kotlin_version = '1.9.25'
     repositories {
         google()
         mavenCentral()
@@ -23,7 +23,6 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 
-    // ✅ نضمن إن كل إضافات Firebase مثلاً عندها namespace و buildConfig مفعّل
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
             project.android.buildFeatures.buildConfig = true
