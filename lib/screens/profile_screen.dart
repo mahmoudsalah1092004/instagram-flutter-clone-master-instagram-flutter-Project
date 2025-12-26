@@ -10,6 +10,7 @@ import 'package:instagram_clone_flutter/screens/followers_following_screen.dart'
 import 'package:instagram_clone_flutter/utils/colors.dart';
 import 'package:instagram_clone_flutter/widgets/follow_button.dart';
 import 'package:instagram_clone_flutter/models/user.dart' as model;
+import 'package:instagram_clone_flutter/screens/chat_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -119,56 +120,92 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  currentUserId == widget.uid
-                                      ? FollowButton(
-                                          text: 'Edit Profile',
-                                          backgroundColor: mobileBackgroundColor,
-                                          textColor: Colors.white,
-                                          borderColor: Colors.grey,
-                                          function: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    EditProfileScreen(
-                                                  user: userData!,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        )
-                                      : isFollowing
-                                          ? FollowButton(
-                                              text: 'Unfollow',
-                                              backgroundColor: Colors.white,
-                                              textColor: Colors.black,
-                                              borderColor: Colors.grey,
-                                              function: () async {
-                                                await FireStoreMethods()
-                                                    .followUser(
-                                                  currentUserId,
-                                                  userData!.uid,
-                                                );
-                                              },
-                                            )
-                                          : FollowButton(
-                                              text: 'Follow',
-                                              backgroundColor: Colors.blue,
-                                              textColor: Colors.white,
-                                              borderColor: Colors.blue,
-                                              function: () async {
-                                                await FireStoreMethods()
-                                                    .followUser(
-                                                  currentUserId,
-                                                  userData!.uid,
-                                                );
-                                              },
-                                            ),
-                                ],
-                              ),
+                              // هذا هو الـ Row الموجود تحت الـ Stat Columns (Posts, Followers, Following)
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    // الحالة الأولى: لو البروفايل ده بتاعي أنا (Edit Profile)
+    if (currentUserId == widget.uid)
+      FollowButton(
+        text: 'Edit Profile',
+        backgroundColor: mobileBackgroundColor,
+        textColor: Colors.white,
+        borderColor: Colors.grey,
+        function: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EditProfileScreen(
+                user: userData!,
+              ),
+            ),
+          );
+        },
+      )
+    // الحالة الثانية: لو البروفايل ده لشخص تاني
+    else ...[
+      Expanded(
+      child: isFollowing
+          ? FollowButton(
+              text: 'Unfollow',
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
+              borderColor: Colors.grey,
+              function: () async {
+                await FireStoreMethods().followUser(
+                  currentUserId,
+                  userData!.uid,
+                );
+                setState(() {
+                  isFollowing = false;
+                  followers--;
+                });
+              },
+            )
+          : FollowButton(
+              text: 'Follow',
+              backgroundColor: Colors.blue,
+              textColor: Colors.white,
+              borderColor: Colors.blue,
+              function: () async {
+                await FireStoreMethods().followUser(
+                  currentUserId,
+                  userData!.uid,
+                );
+                setState(() {
+                  isFollowing = true;
+                  followers++;
+                });
+              },
+            ),
+      ),
+            
+      // مسافة صغيرة بين الزرارين
+      const SizedBox(width: 5),
+
+      Expanded(
+      child: FollowButton(
+        text: 'Message',
+        backgroundColor: Colors.transparent, // أو mobileBackgroundColor
+        textColor: primaryColor, // لون النص أبيض
+        borderColor: Colors.grey,
+        function: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                otherUserId: userData!.uid,
+                otherUserName: userData!.username,
+              ),
+            ),
+          );
+        },
+      ),
+      ),
+    ],
+    
+    // الحالة الثالثة: زرار تسجيل الخروج (يظهر فقط لو البروفايل بتاعي)
+    
+  ],
+),
                               if (currentUserId == widget.uid)
                                 FollowButton(
                                   text: 'Sign Out',
